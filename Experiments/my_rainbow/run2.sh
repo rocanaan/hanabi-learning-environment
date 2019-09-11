@@ -10,7 +10,7 @@ export PYTHONPATH=${PYTHONPATH}:../..
 export PYTHONPATH=${PYTHONPATH}:../../agents/rainbow
 
 python -um train \
-  --base_dir=${LOG_PATH} \
-  --gin_files="../../agents/rainbow/configs/hanabi_rainbow.gin"
+  --base_dir=${LOG_PATH} 
+  --gin_files='configs/hanabi_rainbow.gin' 
   --gin_bindings='RainbowAgent' 
   --checkpoint_dir=${CHECKPOINT_DIR} 
