@@ -522,5 +522,11 @@ class DQNAgent(object):
     for key in self.__dict__:
       if key in bundle_dictionary:
         self.__dict__[key] = bundle_dictionary[key]
+    # print(tf.train.latest_checkpoint(checkpoint_dir))
+    # path = tf.train.latest_checkpoint(checkpoint_dir).split("-")
+    # path[-1] = str(iteration_number)
+    # path = "-".join(path)
+    # print(path)
+    # self._saver.restore(self._sess, path)
     self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
     return True

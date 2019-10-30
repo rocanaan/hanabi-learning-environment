@@ -51,7 +51,7 @@ import os
 import pickle
 import tensorflow as tf
 
-CHECKPOINT_DURATION = 4
+CHECKPOINT_DURATION = 250
 
 
 def get_latest_checkpoint_number(base_directory):
@@ -71,7 +71,7 @@ def get_latest_checkpoint_number(base_directory):
   except tf.errors.NotFoundError:
     return -1
   try:
-    latest_iteration = max(extract_iteration(x) for x in checkpoint_files)
+    latest_iteration = max(extract_iteration(x) for x in checkpoint_files) # if extract_iteration(x) <=5000
     return latest_iteration
   except ValueError:
     return -1
