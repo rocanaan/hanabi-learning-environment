@@ -379,6 +379,7 @@ class OutOfGraphReplayMemory(object):
 
       # After writing a checkpoint file, we garbage collect the checkpoint file
       # that is four versions old.
+      """
       stale_iteration_number = iteration_number - CHECKPOINT_DURATION
       if stale_iteration_number >= 0:
         stale_filename = self._generate_filename(checkpoint_dir, attr,
@@ -387,6 +388,7 @@ class OutOfGraphReplayMemory(object):
           tf.gfile.Remove(stale_filename)
         except tf.errors.NotFoundError:
           pass
+          """
 
   def load(self, checkpoint_dir, suffix):
     """Restores the object from bundle_dictionary and numpy checkpoints.

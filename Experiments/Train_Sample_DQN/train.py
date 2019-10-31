@@ -55,6 +55,10 @@ flags.DEFINE_string('logging_dir', '',
                     'no checkpoints will be saved.')
 flags.DEFINE_string('logging_file_prefix', 'log',
                     'Prefix to use for the log files.')
+flags.DEFINE_string('checkpoint_save_dir',None,
+                    'Path to save directory')
+flags.DEFINE_string('checkpoint_version', None,
+                    'Specific checkpoint file version to be loaded. If empty, the newest checkpoint will be loaded.')
 
 
 def launch_experiment():
@@ -75,24 +79,34 @@ def launch_experiment():
                      'logs and checkpoints.')
 
   run_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
-  experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
+
 
   environment = run_experiment.create_environment()
   obs_stacker = run_experiment.create_obs_stacker(environment)
   agent = run_experiment.create_agent(environment, obs_stacker,'Rainbow')
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
+  if FLAGS.checkpoint_save_dir == None:
+    checkpoint_save_dir = checkpoint_dir
+    experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
+  else:
+    checkpoint_save_dir = '{}/checkpoints'.format(FLAGS.checkpoint_save_dir)
+    experiment_logger = logger.Logger('{}/logs'.format(FLAGS.checkpoint_save_dir))
+    print ("set save dir as: "+ checkpoint_save_dir)
+
   start_iteration, experiment_checkpointer = (
       run_experiment.initialize_checkpointing(agent,
                                               experiment_logger,
                                               checkpoint_dir,
+                                              checkpoint_save_dir,
+                                              FLAGS.checkpoint_version,
                                               FLAGS.checkpoint_file_prefix))
 
 
   run_experiment.run_experiment(agent, environment, start_iteration,
                                 obs_stacker,
                                 experiment_logger, experiment_checkpointer,
-                                checkpoint_dir,
+                                checkpoint_save_dir,
                                 logging_file_prefix=FLAGS.logging_file_prefix)
 
 

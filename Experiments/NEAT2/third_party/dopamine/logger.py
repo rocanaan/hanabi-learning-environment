@@ -90,6 +90,7 @@ class Logger(object):
       pickle.dump(self.data, fout, protocol=pickle.HIGHEST_PROTOCOL)
     # After writing a checkpoint file, we garbage collect the log file
     # that is CHECKPOINT_DURATION versions old.
+    """
     stale_iteration_number = iteration_number - CHECKPOINT_DURATION
     if stale_iteration_number >= 0:
       stale_file = self._generate_filename(filename_prefix,
@@ -99,6 +100,7 @@ class Logger(object):
       except tf.errors.NotFoundError:
         # Ignore if file not found.
         pass
+        """
 
   def is_logging_enabled(self):
     """Return if logging is enabled."""

@@ -173,7 +173,7 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
     raise ValueError('Expected valid agent_type, got {}'.format(agent_type))
 
 
-def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
+def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,checkpoint_save_dir,checkpoint_version,
                              checkpoint_file_prefix='ckpt'):
   """Reloads the latest checkpoint if it exists.
 
@@ -209,8 +209,12 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
 
   # Check if checkpoint exists. Note that the existence of checkpoint 0 means
   # that we have finished iteration 0 (so we will start from iteration 1).
-  latest_checkpoint_version = checkpointer.get_latest_checkpoint_number(
-      checkpoint_dir)
+  if checkpoint_version == None :
+    print("Didn't enter checkpoint version, will load latest checkpoint")
+    latest_checkpoint_version = checkpointer.get_latest_checkpoint_number(checkpoint_dir)
+  else:
+    print("trying to load checkpoint version" + checkpoint_version)
+    latest_checkpoint_version = int(checkpoint_version)
   if latest_checkpoint_version >= 0:
     dqn_dictionary = experiment_checkpointer.load_checkpoint(
         latest_checkpoint_version)
@@ -222,7 +226,10 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
       start_iteration = dqn_dictionary['current_iteration'] + 1
       tf.logging.info('Reloaded checkpoint and will start from iteration %d',
                       start_iteration)
-
+    else:
+      print("load failed")
+    #redirect checkpointer from dir to save_dir
+    experiment_checkpointer = checkpointer.Checkpointer(checkpoint_save_dir, checkpoint_file_prefix)
   return start_iteration, experiment_checkpointer
 
 

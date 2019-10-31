@@ -138,6 +138,7 @@ class Checkpointer(object):
 
   def _clean_up_old_checkpoints(self, iteration_number):
     """Removes sufficiently old checkpoints."""
+    """
     # After writing a the checkpoint and sentinel file, we garbage collect files
     # that are CHECKPOINT_DURATION * self._checkpoint_frequency versions old.
     stale_iteration_number = iteration_number - (self._checkpoint_frequency *
@@ -155,7 +156,7 @@ class Checkpointer(object):
         # Ignore if file not found.
         tf.logging.info('Unable to remove {} or {}.'.format(stale_file,
                                                             stale_sentinel))
-
+"""
   def _load_data_from_file(self, filename):
     if not tf.gfile.Exists(filename):
       return None
