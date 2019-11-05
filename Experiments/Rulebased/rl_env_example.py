@@ -20,8 +20,9 @@ import getopt
 import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
+from internal_agent import InternalAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent}
 
 
 class Runner(object):
@@ -57,10 +58,12 @@ class Runner(object):
                                             current_player_action))
         observations, reward, done, unused_info = self.environment.step(
             current_player_action)
-        episode_reward += reward
+        if (reward >=0):
+          episode_reward += reward
       rewards.append(episode_reward)
       print('Running episode: %d' % episode)
       print('Max Reward: %.3f' % max(rewards))
+      print('Average Reward: %.3f' % (sum(rewards)/(episode+1)))
     return rewards
 
 if __name__ == "__main__":
