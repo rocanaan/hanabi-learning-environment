@@ -971,6 +971,108 @@ class ObservationEncoder(object):
     encoding = [int(x) for x in encoding_string.split(",")]
     return encoding
 
+class MinimalEncoder(ObservationEncoder):
+  """ObservationEncoder class.
+
+  The canonical observations wrap an underlying C++ class. To make custom
+  observation encoders, create a subclass of this base class and override
+  the shape and encode methods.
+  """
+  colors = ['Y', 'B', 'W', 'R', 'G']
+
+  
+  def playable_card(self, card, fireworks):
+    """A card is playable if it can be placed on the fireworks pile."""
+    if card.color() == None and card.rank() != None:
+        for  index, color in enumerate(self.colors):
+            if fireworks[index] == card.rank():
+                continue
+            else:
+                return False
+
+        return True
+    elif card.color() == None or card.rank() == None:
+        return False
+    else:
+        return card.rank() == fireworks[card.color()]
+
+  def __init__(self, game, enc_type=ObservationEncoderType.CANONICAL):
+    """Construct using HanabiState.observation(player)."""
+    """Construct using HanabiState.observation(player)."""
+    self._game = game.c_game
+    self._encoder = ffi.new("pyhanabi_observation_encoder_t*")
+    lib.NewObservationEncoder(self._encoder, self._game, enc_type)
+    
+
+  def __del__(self):
+    if self._encoder is not None:
+      lib.DeleteObservationEncoder(self._encoder)
+      self._encoder = None
+      self._game = None
+    del self
+
+  def shape(self):
+    # # return [28]
+    # c_shape_str = lib.ObservationShape(self._encoder)
+    # shape_string = encode_ffi_string(c_shape_str)
+    # lib.DeleteString(c_shape_str)
+    # shape = [int(x) for x in shape_string.split(",")]
+    # print("Shape: ")
+    # print(shape)
+    # return shape
+
+    return[28]
+
+  def encode(self, observation):
+    hand_size = 5 # TODO: pass as argument
+    """Encode the observation as a sequence of bits."""
+    c_encoding_str = lib.EncodeObservation(self._encoder,
+                                           observation.observation())
+    encoding_string = encode_ffi_string(c_encoding_str)
+    lib.DeleteString(c_encoding_str)
+    # Canonical observations are bit strings, so it is ok to encode using a
+    # string. For float or double observations, make a custom object
+    encoding = [int(x) for x in encoding_string.split(",")]
+
+    fireworks = observation.fireworks()
+    my_playable_cards = [0 for i in range(hand_size)]
+    for card_index, hint in enumerate(observation.card_knowledge()[0]):
+      if self.playable_card(hint, fireworks):
+          my_playable_cards[card_index] = 1
+
+
+    their_playable_cards = [0 for i in range(hand_size)]
+    their_known_cards_color = [0 for i in range(hand_size)]
+    their_known_cards_rank = [0 for i in range(hand_size)]
+    for player_offset in range(1, observation.num_players()):
+        player_hand = observation.observed_hands()[player_offset]
+        player_hints = observation.card_knowledge()[player_offset]
+        # Check if the card in the hand of the opponent is playable.
+        index = 0
+        for card, hint in zip(player_hand, player_hints):
+          if self.playable_card(card,fireworks):
+            their_playable_cards[index] = 1
+          if hint.color() is not None:
+            their_known_cards_color[index] = 1
+          if hint.rank() is not None:
+            their_known_cards_rank[index] = 1
+    information_tokens_observation = [0 for i in range(8)]
+    for i in range(observation.information_tokens()):
+      information_tokens_observation[i] = 1
+
+    # print(my_playable_cards)
+    # print(their_playable_cards)
+    # print(their_known_cards_color)
+    # print(their_known_cards_rank)
+    # print(information_tokens_observation)
+
+    minimal_observation = my_playable_cards + their_playable_cards + their_known_cards_color + their_known_cards_rank + information_tokens_observation
+    print (minimal_observation)
+    # print(minimal_observation)
+
+    assert len(minimal_observation) == 28, ( "Unexpected observation size %d %d %d %d " % (len(my_playable_cards),len(their_playable_cards),len(their_known_cards_color),len(their_known_cards_rank)))
+    return minimal_observation
+
 
 try_cdef()
 if cdef_loaded():

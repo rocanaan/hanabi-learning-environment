@@ -103,7 +103,9 @@ class HanabiEnv(Environment):
     assert isinstance(config, dict), "Expected config to be of type dict."
     self.game = pyhanabi.HanabiGame(config)
 
-    self.observation_encoder = pyhanabi.ObservationEncoder(
+    # self.observation_encoder = pyhanabi.ObservationEncoder(
+    #     self.game, pyhanabi.ObservationEncoderType.CANONICAL)
+    self.observation_encoder = pyhanabi.MinimalEncoder(
         self.game, pyhanabi.ObservationEncoderType.CANONICAL)
     self.players = self.game.num_players()
 
