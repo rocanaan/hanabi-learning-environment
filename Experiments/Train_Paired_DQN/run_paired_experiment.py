@@ -304,7 +304,6 @@ def run_one_episode(my_agent, their_agent, environment, obs_stacker):
       parse_observations(observations, environment.num_moves(), obs_stacker))
   observation = observations['player_observations'][current_player]
   num_players = observation['num_players']
-  print(num_players)
   my_player_index = random.randint(0,num_players-1)
   if current_player == my_player_index:
     action = my_agent.begin_episode(current_player, legal_moves, observation_vector).item()
