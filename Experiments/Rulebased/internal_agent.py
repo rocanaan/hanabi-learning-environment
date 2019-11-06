@@ -27,7 +27,9 @@ class InternalAgent(Agent):
     # Extract max info tokens or set default to 8.
     self.max_information_tokens = config.get('information_tokens', 8)
 
-    self.rules = [Ruleset.play_safe_card,Ruleset.tell_playable_card_outer,Ruleset.discard_randomly,Ruleset.legal_random]
+    # self.rules = [Ruleset.play_safe_card,Ruleset.tell_playable_card_outer,Ruleset.discard_randomly,Ruleset.legal_random]
+    self.rules = [Ruleset.play_probably_safe_factory(0.95),Ruleset.tell_playable_card_outer,Ruleset.discard_randomly,Ruleset.legal_random]
+
     self.rulebased = RulebasedAgent(self.rules)
 
   def act(self, observation):
