@@ -93,3 +93,10 @@ class Ruleset():
       discard_index = random.randint(0,hand_size-1)
       return {'action_type': 'DISCARD', 'card_index': discard_index}
     return None
+
+    @staticmethod
+    def play_probably_safe_factory(treshold = 1.0):
+      def play_probably_safe_treshold(observation):
+        return observation, treshold
+
+      return play_probably_safe_treshold
