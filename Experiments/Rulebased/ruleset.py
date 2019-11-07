@@ -21,7 +21,7 @@ import pyhanabi
 global colors
 colors = ['R', 'Y', 'G', 'W', 'B']
 # ranks = [1,2,3,4,5]
-num_in_deck_by_rank = {0:3,1:2,2:2,3:2,4:1} #Note: zero-based
+num_in_deck_by_rank = [3,2,2,2,1] # Note: rank is zero-based
 
 
 # Note: depending on the object calling, card could either be a dict eg {'color':'R','rank':0} or a HanabiCard instance with c.color() and c.rank() methods
@@ -115,7 +115,69 @@ def get_card_playability(observation, player_offset=0):
   # print(player_hints)
   return playability_array
 
+
+# Note: Fireworks goes from 0 to 5, whereas rank goes from 0 to 4
+def get_max_fireworks(observation):
+  discarded_cards = {}
+  max_fireworks = {'R':5,'Y':5,'G':5,'W':5,'B':5}
+  for card in observation['discard_pile']:
+    color = card['color']
+    rank = card['rank']
+    label = str(color)+str(rank)
+    if label not in discarded_cards:
+      discarded_cards[label] = 1
+    else:
+      discarded_cards[label] +=1
+  for label in discarded_cards:
+    color = label[0]
+    rank = int(label[1])
+    number_in_discard = discarded_cards[label]
+    if number_in_discard >= num_in_deck_by_rank[rank]:
+      if max_fireworks[color] >=rank:
+        max_fireworks[color] = rank
+  return max_fireworks
+
+  #   print(label)
+  #   print(card)
+  # for color in colors:
+  #   current_value = fireworks[color]
+  #   print(current_value)
+  #   max_possible = 5
+
+
 class Ruleset():
+
+
+  #Note: this is not identical to the osawa rule implemented in the Fossgalaxy framework, as there the rule only takes into account explicitly known colors and ranks
+  @staticmethod
+  def osawa_discard(observation):
+    if observation['information_tokens'] == 8:
+      return None
+    fireworks = observation['fireworks']
+    max_fireworks = get_max_fireworks(observation)
+    for card_index in range(len(observation['observed_hands'][0])):
+      plausible_cards = get_plausible_cards(observation,0,card_index)
+      eventually_playable=False
+      for card in plausible_cards:
+        color = colors[card.color()]
+        rank = card.rank()
+        if (rank>=fireworks[color] and rank<max_fireworks[color]):
+          eventually_playable =True
+          break
+        if not eventually_playable:
+          return{'action_type': 'DISCARD','card_index':card_index}
+    return None
+
+
+  # Note: this rule only looks at the next player on purpose, for compatibility with the Fossgalaxy implementation
+  @staticmethod
+  def tell_unknown(observation):
+    if observation['information_tokens']>0:
+      their_hand = observation['observed_hands'][0]
+      for card in their_hand:
+        print(card)
+
+    
 
 
   @staticmethod
