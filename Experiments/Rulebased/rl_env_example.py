@@ -18,11 +18,13 @@ from __future__ import print_function
 import sys
 import getopt
 import rl_env
+from rulebased_agent import RulebasedAgent
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
 from internal_agent import InternalAgent
+from outer_agent import OuterAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent, 'OuterAgent': OuterAgent}
 
 
 class Runner(object):
@@ -38,10 +40,10 @@ class Runner(object):
   def run(self):
     """Run episodes."""
     rewards = []
+    agents = [self.agent_class(self.agent_config)
+                for _ in range(self.flags['players'])]
     for episode in range(flags['num_episodes']):
       observations = self.environment.reset()
-      agents = [self.agent_class(self.agent_config)
-                for _ in range(self.flags['players'])]
       done = False
       episode_reward = 0
       while not done:
@@ -64,6 +66,8 @@ class Runner(object):
       print('Running episode: %d' % episode)
       print('Max Reward: %.3f' % max(rewards))
       print('Average Reward: %.3f' % (sum(rewards)/(episode+1)))
+    for a in agents:
+      a.rulebased.print_histogram()
     return rewards
 
 if __name__ == "__main__":

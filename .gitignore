@@ -1,3 +1,4 @@
-*.pyc
+*pycache*
 Logs*
+.DS_Store
 *.DS_Store
