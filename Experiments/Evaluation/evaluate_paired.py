@@ -26,11 +26,19 @@ from __future__ import print_function
 
 from absl import app
 from absl import flags
+import statistics
 
+import rl_env
 from third_party.dopamine import logger
 from internal_agent import InternalAgent
-
+from agents.random_agent import RandomAgent
+from agents.simple_agent import SimpleAgent
+from internal_agent import InternalAgent
+from rulebased_agent import RulebasedAgent
 import run_paired_experiment
+
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent,'RulebasedAgent':RulebasedAgent, 'RainbowAgent':None}
+SETTINGS = {'players': 2, 'num_episodes': 100, 'agent_class1': 'SimpleAgent', 'agent_class2': 'RandomAgent'}
 
 FLAGS = flags.FLAGS
 
@@ -60,9 +68,10 @@ flags.DEFINE_string('checkpoint_save_dir',None,
                     'Path to save directory')
 flags.DEFINE_string('checkpoint_version', None,
                     'Specific checkpoint file version to be loaded. If empty, the newest checkpoint will be loaded.')
+flags.DEFINE_string('agent1',None,'name of agent1')
+flags.DEFINE_string('agent2','InternalAgent','name of agent2')
 
-
-def launch_experiment():
+def launch_experiment(agentX):
   """Launches the experiment.
 
   Specifically:
@@ -85,7 +94,10 @@ def launch_experiment():
   environment = run_paired_experiment.create_environment()
   obs_stacker = run_paired_experiment.create_obs_stacker(environment)
   my_agent = run_paired_experiment.create_agent(environment, obs_stacker,'Rainbow')
-  their_agent = InternalAgent({})
+  if agentX!='RainbowAgent':
+    their_agent = AGENT_CLASSES[agentX]({})
+  else:
+    their_agent = run_paired_experiment.create_agent(environment, obs_stacker,'Rainbow')
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
   if FLAGS.checkpoint_save_dir == None:
@@ -105,11 +117,58 @@ def launch_experiment():
                                               FLAGS.checkpoint_file_prefix))
 
 
-  run_paired_experiment.run_paired_experiment(my_agent, their_agent, environment, start_iteration,
+  return_collection = run_paired_experiment.run_paired_experiment(my_agent, their_agent, environment, start_iteration,
                                 obs_stacker,
                                 experiment_logger, experiment_checkpointer,
                                 checkpoint_save_dir,
                                 logging_file_prefix=FLAGS.logging_file_prefix)
+  return return_collection
+
+class Runner(object):
+  """Runner class."""
+
+  def __init__(self, flags1):
+    """Initialize runner."""
+    self.flags1 = flags1
+    self.agent_config = {'players': flags1['players']}
+    self.environment = rl_env.make('Hanabi-Full', num_players=flags1['players'])
+    self.agent_class1 = AGENT_CLASSES[flags1['agent_class1']]
+    self.agent_class2 = AGENT_CLASSES[flags1['agent_class2']]
+
+  def run(self):
+    """Run episodes."""
+    rewards = []
+    for episode in range(flags1['num_episodes']):
+      observations = self.environment.reset()
+      agents = [self.agent_class1(self.agent_config), self.agent_class2(self.agent_config)]
+      done = False
+      episode_reward = 0
+      while not done:
+        for agent_id, agent in enumerate(agents):
+          observation = observations['player_observations'][agent_id]
+          try:
+            action = agent.act(observation)
+          except:
+            action = agent.get_move(observation)
+          if observation['current_player'] == agent_id:
+            assert action is not None
+            current_player_action = action
+          else:
+            assert action is None
+        # Make an environment step.
+        #print('Agent: {} action: {}'.format(observation['current_player'],
+        #                                    current_player_action))
+        observations, reward, done, unused_info = self.environment.step(
+            current_player_action)
+        if (reward >=0):
+          episode_reward += reward
+      rewards.append(episode_reward)
+      print('Running episode: %d' % episode)
+      print('Max Reward: %.3f' % max(rewards))
+      print('Average Reward: %.3f' % (sum(rewards)/(episode+1)))
+    return rewards
+
+  
 
 
 def main(unused_argv):
@@ -118,7 +177,30 @@ def main(unused_argv):
   Args:
     unused_argv: Arguments (unused).
   """
-  launch_experiment()
+  
+  
+  
+  if (FLAGS.agent1 == 'RainbowAgent'):
+    return_collection = launch_experiment(FLAGS.agent2)
+  elif(FLAGS.agent2 == 'RainbowAgent'):
+    return_collection = launch_experiment(FLAGS.agent1)
+  else:
+    flags1['agent_class1'] = FLAGS.agent1
+    flags1['agent_class2'] = FLAGS.agent2
+    options = [(k, v) for k, v in flags1.items()]
+    runner = Runner(flags1)
+    return_collection = runner.run()
 
+  print("Average score and std: ")
+  print(statistics.mean(return_collection),statistics.stdev(return_collection))
 if __name__ == '__main__':
+  flags1 = SETTINGS
+  options = [(k, v) for k, v in flags1.items()]
+  print(options)
+
+  for flag, value in options[1:]:
+    #flag = flag[2:]  # Strip leading --.
+    flags1[flag] = type(flags1[flag])(value)
+
   app.run(main)
+  
