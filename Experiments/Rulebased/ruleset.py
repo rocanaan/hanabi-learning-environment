@@ -148,6 +148,8 @@ def get_max_fireworks(observation):
 class Ruleset():
 
 
+
+
   #Note: this is not identical to the osawa rule implemented in the Fossgalaxy framework, as there the rule only takes into account explicitly known colors and ranks
   @staticmethod
   def osawa_discard(observation):
@@ -168,8 +170,6 @@ class Ruleset():
       if rank is not None:
         if rank<min(fireworks.values()):
           return{'action_type': 'DISCARD','card_index':card_index}
-
-
 
     for card_index in range(len(observation['observed_hands'][0])):
       plausible_cards = get_plausible_cards(observation,0,card_index)
@@ -201,19 +201,51 @@ class Ruleset():
     return None
 
     
-
+  # Note: this rule only looks at the next player on purpose, for compatibility with the Fossgalaxy implementation. Prioritizes color
+  @staticmethod
+  def tell_randomly(observation):
+    if observation['information_tokens']>0:
+      PLAYER_OFFSET =1
+      their_hand = observation['observed_hands'][PLAYER_OFFSET]
+      card = random.choice(their_hand)
+      r = random.randint(0,1)
+      if (r == 0):
+        return {
+         'action_type': 'REVEAL_RANK',
+         'rank': card['rank'],
+         'target_offset': PLAYER_OFFSET
+        }
+      else:
+        return {
+         'action_type': 'REVEAL_COLOR',
+         'color': card['color'],
+         'target_offset': PLAYER_OFFSET
+        }
+    return None
 
   @staticmethod
   def play_safe_card(observation):
+    PLAYER_OFFSET = 0
     fireworks = observation['fireworks']
-    # for card_index, hint in enumerate(observation['card_knowledge'][0]):
-    #   if playable_card(hint, fireworks):
-    #       return {'action_type': 'PLAY', 'card_index': card_index}
-    playability_vector = get_card_playability(observation)
-    card_index = np.argmax(playability_vector)
-    if playability_vector[card_index]==1:
-      action = {'action_type': 'PLAY', 'card_index': card_index}
-      return action
+    # # for card_index, hint in enumerate(observation['card_knowledge'][0]):
+    # #   if playable_card(hint, fireworks):
+    # #       return {'action_type': 'PLAY', 'card_index': card_index}
+    # playability_vector = get_card_playability(observation)
+    # card_index = np.argmax(playability_vector)
+    # if playability_vector[card_index]==1:
+    #   action = {'action_type': 'PLAY', 'card_index': card_index}
+    #   return action
+
+    for card_index, card in enumerate(observation['card_knowledge'][0]):
+      plausible_cards = get_plausible_cards(observation,PLAYER_OFFSET,card_index)
+      possibly_playable = True
+      for plausible in plausible_cards:
+        if not playable_card(plausible,fireworks):
+          possibly_playable = False
+          break
+      if possibly_playable:
+        action = {'action_type': 'PLAY', 'card_index': card_index}
+        return action
     return None
 
 
@@ -242,6 +274,34 @@ class Ruleset():
              'color': card['color'],
              'target_offset': player_offset
             }
+    return None
+
+  #Does not take into account what information the other player has into account, and decides whether to hint rank or color randomly
+  @staticmethod
+  def tell_playable_card(observation):
+    fireworks = observation['fireworks']
+
+    # Check if it's possible to hint a card to your colleagues.
+    if observation['information_tokens'] > 0:
+      # Check if there are any playable cards in the hands of the opponents.
+      for player_offset in range(1, observation['num_players']):
+        player_hand = observation['observed_hands'][player_offset]
+        # Check if the card in the hand of the opponent is playable.
+        for card in player_hand:
+          if playable_card(card, fireworks):
+            r = random.randint(0,1)
+            if (r == 0):
+              return {
+               'action_type': 'REVEAL_RANK',
+               'rank': card['rank'],
+               'target_offset': player_offset
+              }
+            else:
+              return {
+               'action_type': 'REVEAL_COLOR',
+               'color': card['color'],
+               'target_offset': player_offset
+              }
     return None
 
 
