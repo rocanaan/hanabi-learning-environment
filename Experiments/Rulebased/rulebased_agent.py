@@ -27,6 +27,7 @@ class RulebasedAgent():
       for rule in self.rules:
         action = rule(observation)
         if action is not None:
+          print(rule)
           return action
       return None
     return None

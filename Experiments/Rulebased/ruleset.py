@@ -155,27 +155,49 @@ class Ruleset():
       return None
     fireworks = observation['fireworks']
     max_fireworks = get_max_fireworks(observation)
-    for card_index in range(len(observation['observed_hands'][0])):
-      plausible_cards = get_plausible_cards(observation,0,card_index)
-      eventually_playable=False
-      for card in plausible_cards:
-        color = colors[card.color()]
-        rank = card.rank()
-        if (rank>=fireworks[color] and rank<max_fireworks[color]):
-          eventually_playable =True
-          break
-        if not eventually_playable:
+    safe_to_discard = False
+    for card_index, card in enumerate(observation['card_knowledge'][0]):
+      color = card['color']
+      rank = card['rank']
+      if color is not None:
+        if fireworks[color] == 5:
           return{'action_type': 'DISCARD','card_index':card_index}
+      if (color is not None and rank is not None):
+        if (rank<fireworks[color] or rank>=max_fireworks[color]):
+          return{'action_type': 'DISCARD','card_index':card_index}
+      if rank is not None:
+        if rank<min(fireworks.values()):
+          return{'action_type': 'DISCARD','card_index':card_index}
+
+
+
+    # for card_index in range(len(observation['observed_hands'][0])):
+    #   # plausible_cards = get_plausible_cards(observation,0,card_index)
+    #   # eventually_playable=False
+    #   # for card in plausible_cards:
+    #   #   color = colors[card.color()]
+    #   #   rank = card.rank()
+    #   #   if (rank>=fireworks[color] and rank<max_fireworks[color]):
+    #   #     eventually_playable =True
+    #   #     break
+    #   # if not eventually_playable:
+    #   #   return{'action_type': 'DISCARD','card_index':card_index}
     return None
 
 
-  # Note: this rule only looks at the next player on purpose, for compatibility with the Fossgalaxy implementation
+  # Note: this rule only looks at the next player on purpose, for compatibility with the Fossgalaxy implementation. Prioritizes color
   @staticmethod
   def tell_unknown(observation):
+    PLAYER_OFFSET =1
     if observation['information_tokens']>0:
-      their_hand = observation['observed_hands'][0]
-      for card in their_hand:
-        print(card)
+      their_hand = observation['observed_hands'][PLAYER_OFFSET]
+      their_knowledge = observation['card_knowledge'][PLAYER_OFFSET]
+      for index, card in enumerate(their_knowledge):
+        if card['color'] is None:
+          return{'action_type':'REVEAL_COLOR', 'color':their_hand[index]['color'], 'target_offset':PLAYER_OFFSET}
+        if card['rank'] is None:
+          return{'action_type':'REVEAL_RANK', 'rank':their_hand[index]['rank'], 'target_offset':PLAYER_OFFSET}
+    return None
 
     
 
@@ -183,12 +205,18 @@ class Ruleset():
   @staticmethod
   def play_safe_card(observation):
     fireworks = observation['fireworks']
-    for card_index, hint in enumerate(observation['card_knowledge'][0]):
-      if playable_card(hint, fireworks):
-          return {'action_type': 'PLAY', 'card_index': card_index}
+    # for card_index, hint in enumerate(observation['card_knowledge'][0]):
+    #   if playable_card(hint, fireworks):
+    #       return {'action_type': 'PLAY', 'card_index': card_index}
+    playability_vector = get_card_playability(observation)
+    card_index = np.argmax(playability_vector)
+    if playability_vector[card_index]==1:
+      action = {'action_type': 'PLAY', 'card_index': card_index}
+      return action
     return None
 
 
+  # Prioritizes Rank
   @staticmethod
   def tell_playable_card_outer(observation):
     fireworks = observation['fireworks']
@@ -201,16 +229,16 @@ class Ruleset():
         player_hints = observation['card_knowledge'][player_offset]
         # Check if the card in the hand of the opponent is playable.
         for card, hint in zip(player_hand, player_hints):
-          if playable_card(card,fireworks) and hint['color'] is None:
-            return {
-             'action_type': 'REVEAL_COLOR',
-             'color': card['color'],
-             'target_offset': player_offset
-            }
-          elif playable_card(card, fireworks) and hint['rank'] is None:
+          if playable_card(card, fireworks) and hint['rank'] is None:
             return {
              'action_type': 'REVEAL_RANK',
              'rank': card['rank'],
+             'target_offset': player_offset
+            }
+          elif playable_card(card,fireworks) and hint['color'] is None:
+            return {
+             'action_type': 'REVEAL_COLOR',
+             'color': card['color'],
              'target_offset': player_offset
             }
     return None

@@ -21,8 +21,9 @@ import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
 from internal_agent import InternalAgent
+from outer_agent import OuterAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent, 'OuterAgent': OuterAgent}
 
 
 class Runner(object):
