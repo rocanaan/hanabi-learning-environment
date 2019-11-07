@@ -1067,7 +1067,7 @@ class MinimalEncoder(ObservationEncoder):
     # print(information_tokens_observation)
 
     minimal_observation = my_playable_cards + their_playable_cards + their_known_cards_color + their_known_cards_rank + information_tokens_observation
-    print (minimal_observation)
+    # print (minimal_observation)
     # print(minimal_observation)
 
     assert len(minimal_observation) == 28, ( "Unexpected observation size %d %d %d %d " % (len(my_playable_cards),len(their_playable_cards),len(their_known_cards_color),len(their_known_cards_rank)))
