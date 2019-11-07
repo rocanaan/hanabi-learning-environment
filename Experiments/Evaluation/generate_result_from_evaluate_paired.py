@@ -27,7 +27,6 @@ from __future__ import print_function
 from absl import app
 from absl import flags
 import statistics
-import pandas as pd
 
 import rl_env
 from third_party.dopamine import logger
@@ -36,11 +35,10 @@ from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
 from internal_agent import InternalAgent
 from rulebased_agent import RulebasedAgent
-from outer_agent import OuterAgent
 import run_paired_experiment
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent,'OuterAgent':OuterAgent, 'RainbowAgent':None}
-SETTINGS = {'players': 2, 'num_episodes': 10, 'agent_class1': 'SimpleAgent', 'agent_class2': 'RandomAgent'}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent,'RulebasedAgent':RulebasedAgent, 'RainbowAgent':None}
+SETTINGS = {'players': 2, 'num_episodes': 100, 'agent_class1': 'SimpleAgent', 'agent_class2': 'RandomAgent'}
 
 FLAGS = flags.FLAGS
 
@@ -72,9 +70,8 @@ flags.DEFINE_string('checkpoint_version', None,
                     'Specific checkpoint file version to be loaded. If empty, the newest checkpoint will be loaded.')
 flags.DEFINE_string('agent1',None,'name of agent1')
 flags.DEFINE_string('agent2','InternalAgent','name of agent2')
-flags.DEFINE_string('evaluate_all','0','whether to loop through each pair of agents')
 
-def launch_experiment(agentX,environment,obs_stacker):
+def launch_experiment(agentX):
   """Launches the experiment.
 
   Specifically:
@@ -91,7 +88,11 @@ def launch_experiment(agentX,environment,obs_stacker):
     raise ValueError('--base_dir is None: please provide a path for '
                      'logs and checkpoints.')
 
+  run_paired_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
 
+
+  environment = run_paired_experiment.create_environment()
+  obs_stacker = run_paired_experiment.create_obs_stacker(environment)
   my_agent = run_paired_experiment.create_agent(environment, obs_stacker,'Rainbow')
   if agentX!='RainbowAgent':
     their_agent = AGENT_CLASSES[agentX]({})
@@ -186,61 +187,21 @@ def main(unused_argv):
   Args:
     unused_argv: Arguments (unused).
   """
-  run_paired_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
-  environment = run_paired_experiment.create_environment()
-  obs_stacker = run_paired_experiment.create_obs_stacker(environment)
-  if (FLAGS.evaluate_all == '0'):
-    agent_1 = FLAGS.agent1
-    agent_2 = FLAGS.agent2
-    return_collection = [0,0]
-    if (agent_1 == 'RainbowAgent'):
-      return_collection = launch_experiment(agent_2,environment,obs_stacker)
-    elif(agent_2 == 'RainbowAgent'):
-      return_collection = launch_experiment(agent_1,environment,obs_stacker)
-    else:
-      flags1['agent_class1'] = agent_1
-      flags1['agent_class2'] = agent_2
-      options = [(k, v) for k, v in flags1.items()]
-      runner = Runner(flags1)
-      return_collection = runner.run()
-    #print("Average score and std: ")
-    #print(statistics.mean(return_collection),statistics.stdev(return_collection))
-  else:
-    columns = list(AGENT_CLASSES.keys())
-    score_data = pd.DataFrame(columns = columns)
-    std_data = pd.DataFrame(columns = columns)
-    score_data = score_data.reindex(index = columns)
-    std_data = std_data.reindex(index = columns)
-    i = 0
-    for agent_1 in AGENT_CLASSES:
-      temp_score_list = []
-      temp_std_list = []
-      for agent_2 in AGENT_CLASSES:
-        print("evlauting agent: ")
-        print(agent_1,agent_2)
-        return_collection = [0,0]
-        if (agent_1 == 'RainbowAgent'):
-          return_collection = launch_experiment(agent_2,environment,obs_stacker)
-        elif(agent_2 == 'RainbowAgent'):
-          return_collection = launch_experiment(agent_1,environment,obs_stacker)
-        else:
-          flags1['agent_class1'] = agent_1
-          flags1['agent_class2'] = agent_2
-          options = [(k, v) for k, v in flags1.items()]
-          runner = Runner(flags1)
-          return_collection = runner.run()
-        print("Average score and std: ")
-        print(statistics.mean(return_collection),statistics.stdev(return_collection))
-        temp_score_list.append(statistics.mean(return_collection))
-        temp_std_list.append(statistics.stdev(return_collection))
-      score_data.iloc[i] = temp_score_list
-      std_data.iloc[i] = temp_std_list
-      i+=1
-    print(score_data)
-    print(std_data)
-    score_data.to_csv('score_data.csv')
-    std_data.to_csv('std_data.csv')
-    
+  for (agent_1 in AGENT_CLASSES):
+    for (agent_2 in AGENT_CLASSES):
+      return_collection = [0,0]
+      if (agent_1 == 'RainbowAgent'):
+        return_collection = launch_experiment(agent_2)
+      elif(agent_2 == 'RainbowAgent'):
+        return_collection = launch_experiment(agent_1)
+      else:
+        flags1['agent_class1'] = agent_1
+        flags1['agent_class2'] = agent_2
+        options = [(k, v) for k, v in flags1.items()]
+        runner = Runner(flags1)
+        return_collection = runner.run()
+      print("Average score and std: ")
+      print(statistics.mean(return_collection),statistics.stdev(return_collection))
 if __name__ == '__main__':
   flags1 = SETTINGS
   options = [(k, v) for k, v in flags1.items()]

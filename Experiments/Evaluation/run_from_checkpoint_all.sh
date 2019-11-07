@@ -18,7 +18,9 @@ python3 -um evaluate_paired \
   --checkpoint_dir=${LOG_PATH}} \
   --agent1="RainbowAgent" \
   --agent2="RainbowAgent" \
-  --checkpoint_version=0
+  --checkpoint_version=0 \
+  --evaluate_all=1 \
   #--checkpoint_save_dir=${NEW_LOG_PATH}\
   #--checkpoint_version=100
-  #--gin_bindings='RainbowAgent'
+  #--gin_bindings="RainbowAgent"
+  

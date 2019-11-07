@@ -23,25 +23,25 @@ from agents.simple_agent import SimpleAgent
 from internal_agent import InternalAgent
 from rulebased_agent import RulebasedAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent,
-                 'RulebasedAgent':RulebasedAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent,'RulebasedAgent':RulebasedAgent}
 
+SETTINGS = {'players': 2, 'num_episodes': 10, 'agent_class1': 'SimpleAgent', 'agent_class2': 'RandomAgent'}
 
 class Runner(object):
   """Runner class."""
 
-  def __init__(self, flags):
+  def __init__(self, flags1):
     """Initialize runner."""
-    self.flags = flags
-    self.agent_config = {'players': flags['players']}
-    self.environment = rl_env.make('Hanabi-Full', num_players=flags['players'])
-    self.agent_class1 = AGENT_CLASSES[flags['agent_class1']]
-    self.agent_class2 = AGENT_CLASSES[flags['agent_class2']]
+    self.flags1 = flags1
+    self.agent_config = {'players': flags1['players']}
+    self.environment = rl_env.make('Hanabi-Full', num_players=flags1['players'])
+    self.agent_class1 = AGENT_CLASSES[flags1['agent_class1']]
+    self.agent_class2 = AGENT_CLASSES[flags1['agent_class2']]
 
   def run(self):
     """Run episodes."""
     rewards = []
-    for episode in range(flags['num_episodes']):
+    for episode in range(flags1['num_episodes']):
       observations = self.environment.reset()
       agents = [self.agent_class1(self.agent_config), self.agent_class2(self.agent_config)]
       done = False
@@ -72,21 +72,17 @@ class Runner(object):
     return rewards
 
 if __name__ == "__main__":
-  flags = {'players': 2, 'num_episodes': 1, 'agent_class1': 'SimpleAgent', 'agent_class2': 'RandomAgent'}
-  options, arguments = getopt.getopt(sys.argv[1:], '',
-                                     ['players=',
-                                      'num_episodes=',
-                                      'agent_class1=',
-                                      'agent_class2='])
-  if arguments:
-    sys.exit('usage: rl_env_example.py [options]\n'
-             '--players       number of players in the game.\n'
-             '--num_episodes  number of game episodes to run.\n'
-             '--agent_class1   {}'.format(' or '.join(AGENT_CLASSES.keys()))+'\n'
-             '--agent_class2   {}'.format(' or '.join(AGENT_CLASSES.keys()))
-             )
-  for flag, value in options:
-    flag = flag[2:]  # Strip leading --.
-    flags[flag] = type(flags[flag])(value)
-  runner = Runner(flags)
+  flags1 = SETTINGS
+  options = [(k, v) for k, v in SETTINGS.items()]
+  print(options)
+
+  for flag, value in options[1:]:
+    #flag = flag[2:]  # Strip leading --.
+    flags1[flag] = type(flags1[flag])(value)
+
+  
+  runner = Runner(SETTINGS)
   runner.run()
+ 
+ 
+ #[('--num_episodes', '100'), ('--agent_class1', 'InternalAgent'), ('--agent_class2', 'RandomAgent')]
