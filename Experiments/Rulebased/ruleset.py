@@ -171,17 +171,18 @@ class Ruleset():
 
 
 
-    # for card_index in range(len(observation['observed_hands'][0])):
-    #   # plausible_cards = get_plausible_cards(observation,0,card_index)
-    #   # eventually_playable=False
-    #   # for card in plausible_cards:
-    #   #   color = colors[card.color()]
-    #   #   rank = card.rank()
-    #   #   if (rank>=fireworks[color] and rank<max_fireworks[color]):
-    #   #     eventually_playable =True
-    #   #     break
-    #   # if not eventually_playable:
-    #   #   return{'action_type': 'DISCARD','card_index':card_index}
+    for card_index in range(len(observation['observed_hands'][0])):
+      plausible_cards = get_plausible_cards(observation,0,card_index)
+      eventually_playable=False
+      for card in plausible_cards:
+        color = colors[card.color()]
+        rank = card.rank()
+        # if (rank>=fireworks[color] and rank<max_fireworks[color]):
+        if (rank<max_fireworks[color]):
+          eventually_playable =True
+          break
+      if not eventually_playable:
+        return{'action_type': 'DISCARD','card_index':card_index}
     return None
 
 

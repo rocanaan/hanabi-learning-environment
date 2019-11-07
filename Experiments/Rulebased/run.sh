@@ -9,4 +9,4 @@ CHECKPOINT_DIR="${BASE_DIR}20190906-153116/checkpoints"
 export PYTHONPATH=${PYTHONPATH}:../..
 export PYTHONPATH=${PYTHONPATH}:../../agents/rainbow
 
-python -um rl_env_example --num_episodes 1000 --agent_class OuterAgent
+python -um rl_env_example --num_episodes 10000 --agent_class OuterAgent
