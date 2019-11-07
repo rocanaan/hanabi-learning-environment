@@ -58,6 +58,7 @@ class ObservationStacker(object):
     self._observation_size = observation_size
     self._num_players = num_players
     self._obs_stacks = list()
+    self.return_collection = []
     for _ in range(0, self._num_players):
       self._obs_stacks.append(np.zeros(self._observation_size *
                                        self._history_size))
@@ -399,12 +400,12 @@ def run_one_phase(my_agent, their_agent , environment, obs_stacker, min_steps, s
     sum_returns += episode_return
     num_episodes += 1
 
-  return step_count, sum_returns, num_episodes
+  return step_count, sum_returns, num_episodes, episode_return
 
 
 @gin.configurable
 def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
-                      iteration, training_steps,
+                      iteration, training_steps, return_collection,
                       evaluate_every_n=100,
                       num_evaluation_games=100):
   """Runs one iteration of agent/environment interaction.
@@ -430,16 +431,17 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
 
   # First perform the training phase, during which the agent learns.
   my_agent.eval_mode = False
-  number_steps, sum_returns, num_episodes = (
+  number_steps, sum_returns, num_episodes, episode_return = (
       run_one_phase(my_agent, their_agent, environment, obs_stacker, training_steps, statistics,
                     'train'))
   time_delta = time.time() - start_time
-  tf.logging.info('Average training steps per second: %.2f',
-                  number_steps / time_delta)
+  #tf.logging.info('Average training steps per second: %.2f',
+  #                number_steps / time_delta)
 
   average_return = sum_returns / num_episodes
-  tf.logging.info('Average per episode return: %.2f', average_return)
+  #tf.logging.info('Average per episode return: %.2f', average_return)
   statistics.append({'average_return': average_return})
+  return_collection.append(episode_return)
 
   # Also run an evaluation phase if desired.
   if evaluate_every_n is not None and evaluate_every_n !=0 and iteration % evaluate_every_n == 0:
@@ -463,7 +465,7 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
         'eval_episode_returns': -1
     })
 
-  return statistics.data_lists
+  return return_collection
 
 
 def log_experiment(experiment_logger, iteration, statistics,
@@ -522,20 +524,10 @@ def run_paired_experiment(my_agent,  their_agent,
     tf.logging.warning('num_iterations (%d) < start_iteration(%d)',
                        num_iterations, start_iteration)
     return
-
+    
+  return_collection = []
   for iteration in range(start_iteration, num_iterations):
     start_time = time.time()
-    statistics = run_one_iteration(my_agent, their_agent, environment, obs_stacker, iteration,
-                                   training_steps)
-    tf.logging.info('Iteration %d took %d seconds', iteration,
-                    time.time() - start_time)
-    start_time = time.time()
-    log_experiment(experiment_logger, iteration, statistics,
-                   logging_file_prefix, log_every_n)
-    tf.logging.info('Logging iteration %d took %d seconds', iteration,
-                    time.time() - start_time)
-    start_time = time.time()
-    checkpoint_experiment(experiment_checkpointer, my_agent, experiment_logger,
-                          iteration, checkpoint_dir, checkpoint_every_n)
-    tf.logging.info('Checkpointing iteration %d took %d seconds', iteration,
-                    time.time() - start_time)
+    return_collection = run_one_iteration(my_agent, their_agent, environment, obs_stacker, iteration,
+                                   training_steps,return_collection)
+  return return_collection

@@ -12,10 +12,12 @@ NEW_LOG_PATH="$BASE_DIR$TARGET_FOLDER/$CUR_DATE"
 export PYTHONPATH=${PYTHONPATH}:../..
 export PYTHONPATH=${PYTHONPATH}:../../agents/rainbow
 
-python3 -um train \
+python3 -um evaluate_paired \
   --base_dir=${LOG_PATH} \
-  --gin_files="../../agents/rainbow/configs/hanabi_rainbow.gin"\
+  --gin_files="hanabi_rainbow.gin" \
   --checkpoint_dir=${LOG_PATH}} \
-  --checkpoint_save_dir=${NEW_LOG_PATH}\
-  --checkpoint_version=100
-  --gin_bindings='RainbowAgent'
+  --agent1="RainbowAgent" \
+  --agent2="InternalAgent"
+  #--checkpoint_save_dir=${NEW_LOG_PATH}\
+  #--checkpoint_version=100
+  #--gin_bindings='RainbowAgent'
