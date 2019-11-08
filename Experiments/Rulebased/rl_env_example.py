@@ -23,8 +23,12 @@ from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
 from internal_agent import InternalAgent
 from outer_agent import OuterAgent
+from iggi_agent import IGGIAgent
+from legal_random_agent import LegalRandomAgent
+from flawed_agent import FlawedAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent, 'OuterAgent': OuterAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent, 
+'OuterAgent': OuterAgent,'IGGIAgent':IGGIAgent,'LegalRandomAgent':LegalRandomAgent,'FlawedAgent':FlawedAgent}
 
 
 class Runner(object):
@@ -64,6 +68,7 @@ class Runner(object):
           episode_reward += reward
       rewards.append(episode_reward)
       print('Running episode: %d' % episode)
+      print('Reward of this episode: %d' % episode_reward)
       print('Max Reward: %.3f' % max(rewards))
       print('Average Reward: %.3f' % (sum(rewards)/(episode+1)))
     for a in agents:

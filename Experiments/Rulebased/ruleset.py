@@ -148,7 +148,11 @@ def get_max_fireworks(observation):
 class Ruleset():
 
 
-
+  @staticmethod
+  def discard_oldest_first(observation):
+    if (observation['information_tokens']) < 8:
+      return{'action_type': 'DISCARD', 'card_index': 0}
+    return None
 
   #Note: this is not identical to the osawa rule implemented in the Fossgalaxy framework, as there the rule only takes into account explicitly known colors and ranks
   @staticmethod
@@ -238,16 +242,37 @@ class Ruleset():
 
     for card_index, card in enumerate(observation['card_knowledge'][0]):
       plausible_cards = get_plausible_cards(observation,PLAYER_OFFSET,card_index)
-      possibly_playable = True
+      definetly_playable = True
       for plausible in plausible_cards:
         if not playable_card(plausible,fireworks):
-          possibly_playable = False
+          definetly_playable = False
           break
-      if possibly_playable:
+      if definetly_playable:
         action = {'action_type': 'PLAY', 'card_index': card_index}
         return action
     return None
 
+  @staticmethod
+  def play_if_certain(observation):
+    PLAYER_OFFSET = 0
+    fireworks = observation['fireworks']
+    # # for card_index, hint in enumerate(observation['card_knowledge'][0]):
+    # #   if playable_card(hint, fireworks):
+    # #       return {'action_type': 'PLAY', 'card_index': card_index}
+    # playability_vector = get_card_playability(observation)
+    # card_index = np.argmax(playability_vector)
+    # if playability_vector[card_index]==1:
+    #   action = {'action_type': 'PLAY', 'card_index': card_index}
+    #   return action
+
+    for card_index, card in enumerate(observation['card_knowledge'][0]):
+      color = card['color']
+      rank = card['rank']
+      if color is not None and rank is not None:
+        if  rank == fireworks[color]:
+          print('play')
+          return{'action_type': 'PLAY', 'card_index': card_index}
+    return None
 
   # Prioritizes Rank
   @staticmethod
@@ -275,6 +300,11 @@ class Ruleset():
              'target_offset': player_offset
             }
     return None
+
+  # As far as I can tell, this is functinally identical to Tell Playable Outer
+  @staticmethod
+  def tell_anyone_useful_card(observation):
+    return Ruleset.tell_playable_card_outer(observation)
 
   #Does not take into account what information the other player has into account, and decides whether to hint rank or color randomly
   @staticmethod
