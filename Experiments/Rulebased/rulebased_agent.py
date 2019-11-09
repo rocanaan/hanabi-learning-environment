@@ -30,7 +30,7 @@ class RulebasedAgent():
       for index, rule in enumerate(self.rules):
         action = rule(observation)
         if action is not None:
-          print(rule)
+          # print(rule)
           self.histogram[index]+=1
           self.totalCalls +=1
           return action

@@ -28,7 +28,21 @@ from absl import app
 from absl import flags
 
 from third_party.dopamine import logger
+from rulebased_agent import RulebasedAgent
+from agents.random_agent import RandomAgent
+from agents.simple_agent import SimpleAgent
 from internal_agent import InternalAgent
+from outer_agent import OuterAgent
+from iggi_agent import IGGIAgent
+from legal_random_agent import LegalRandomAgent
+from flawed_agent import FlawedAgent
+from piers_agent import PiersAgent
+from van_den_bergh_agent import VanDenBerghAgent
+
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent, 
+'OuterAgent': OuterAgent,'IGGIAgent':IGGIAgent,'LegalRandomAgent':LegalRandomAgent,'FlawedAgent':FlawedAgent,
+'PiersAgent':PiersAgent, 'VanDenBerghAgent':VanDenBerghAgent}
+
 
 import run_paired_experiment
 
@@ -85,7 +99,7 @@ def launch_experiment():
   environment = run_paired_experiment.create_environment()
   obs_stacker = run_paired_experiment.create_obs_stacker(environment)
   my_agent = run_paired_experiment.create_agent(environment, obs_stacker,'Rainbow')
-  their_agent = InternalAgent({})
+  their_agent = PiersAgent({})
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
   if FLAGS.checkpoint_save_dir == None:
