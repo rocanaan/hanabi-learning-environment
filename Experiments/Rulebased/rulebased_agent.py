@@ -14,6 +14,7 @@
 """Simple Agent."""
 
 from rl_env import Agent
+from ruleset import Ruleset
 
 
 class RulebasedAgent():

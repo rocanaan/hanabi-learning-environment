@@ -26,9 +26,12 @@ from outer_agent import OuterAgent
 from iggi_agent import IGGIAgent
 from legal_random_agent import LegalRandomAgent
 from flawed_agent import FlawedAgent
+from piers_agent import PiersAgent
+from van_den_bergh_agent import VanDenBerghAgent
 
 AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'InternalAgent': InternalAgent, 
-'OuterAgent': OuterAgent,'IGGIAgent':IGGIAgent,'LegalRandomAgent':LegalRandomAgent,'FlawedAgent':FlawedAgent}
+'OuterAgent': OuterAgent,'IGGIAgent':IGGIAgent,'LegalRandomAgent':LegalRandomAgent,'FlawedAgent':FlawedAgent,
+'PiersAgent':PiersAgent, 'VanDenBerghAgent':VanDenBerghAgent}
 
 
 class Runner(object):
