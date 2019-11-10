@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/Users/rodrigocanaan/Dev/HanabiPythonDev/hanabi-learning-environment/game_example.cc
+/home/jupyter/Notebooks/Rodrigo/hanabi-learning-environment/game_example.cc
 cassert
 -
 cstring
@@ -22,9 +22,9 @@ string
 unordered_map
 -
 hanabi_game.h
-/Users/rodrigocanaan/Dev/HanabiPythonDev/hanabi-learning-environment/hanabi_game.h
+/home/jupyter/Notebooks/Rodrigo/hanabi-learning-environment/hanabi_game.h
 hanabi_state.h
-/Users/rodrigocanaan/Dev/HanabiPythonDev/hanabi-learning-environment/hanabi_state.h
+/home/jupyter/Notebooks/Rodrigo/hanabi-learning-environment/hanabi_state.h
 
 hanabi_lib/hanabi_card.h
 string

@@ -40,6 +40,21 @@ import tensorflow as tf
 import random
 
 
+from rulebased_agent import RulebasedAgent
+from agents.random_agent import RandomAgent
+from agents.simple_agent import SimpleAgent
+from internal_agent import InternalAgent
+from outer_agent import OuterAgent
+from iggi_agent import IGGIAgent
+from legal_random_agent import LegalRandomAgent
+from flawed_agent import FlawedAgent
+from piers_agent import PiersAgent
+from van_den_bergh_agent import VanDenBerghAgent
+
+
+AGENTS = [IGGIAgent, InternalAgent, OuterAgent, LegalRandomAgent, VanDenBerghAgent, FlawedAgent, PiersAgent]
+
+
 LENIENT_SCORE = False
 
 
@@ -298,6 +313,8 @@ def run_one_episode(my_agent, their_agent, environment, obs_stacker):
     step_number: int, number of actions in this episode.
     total_reward: float, undiscounted return for this episode.
   """
+  agent_index = random.randint(0,len(AGENTS)-1)
+  their_agent = AGENTS[agent_index]({})
   obs_stacker.reset_stack()
   observations = environment.reset()
   current_player, legal_moves, observation_vector = (

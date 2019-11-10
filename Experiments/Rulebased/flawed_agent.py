@@ -35,8 +35,6 @@ class FlawedAgent(Agent):
                   Ruleset.discard_oldest_first,
                   Ruleset.discard_randomly]
 
-    print(self.rules)
-
     self.rulebased = RulebasedAgent(self.rules)
 
   def act(self, observation):

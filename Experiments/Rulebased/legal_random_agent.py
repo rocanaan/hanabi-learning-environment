@@ -29,9 +29,6 @@ class LegalRandomAgent(Agent):
 
     # self.rules = [Ruleset.play_safe_card,Ruleset.tell_playable_card_outer,Ruleset.discard_randomly,Ruleset.legal_random]
     self.rules = [Ruleset.legal_random]
-
-    print(self.rules)
-
     self.rulebased = RulebasedAgent(self.rules)
 
   def act(self, observation):

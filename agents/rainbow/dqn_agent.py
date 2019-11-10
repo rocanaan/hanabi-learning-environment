@@ -199,7 +199,7 @@ class DQNAgent(object):
 
     # Set up a session and initialize variables.
     self._sess = tf.Session(
-        '', config=tf.ConfigProto(allow_soft_placement=True))
+        '', config=tf.ConfigProto(allow_soft_placement=True,device_count = {'CUDA': 0}))
     self._init_op = tf.global_variables_initializer()
     self._sess.run(self._init_op)
 

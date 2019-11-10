@@ -35,8 +35,6 @@ class IGGIAgent(Agent):
                   Ruleset.discard_oldest_first,
                   Ruleset.legal_random]
 
-    print(self.rules)
-
     self.rulebased = RulebasedAgent(self.rules)
 
   def act(self, observation):

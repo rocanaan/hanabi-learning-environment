@@ -1,4 +1,4 @@
-# Install script for directory: /Users/rodrigocanaan/Dev/HanabiPythonDev/hanabi-learning-environment/hanabi_lib
+# Install script for directory: /home/jupyter/Notebooks/Rodrigo/hanabi-learning-environment/hanabi_lib
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -25,5 +25,10 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   else()
     set(CMAKE_INSTALL_COMPONENT)
   endif()
+endif()
+
+# Install shared libraries without execute permission?
+if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
+  set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 

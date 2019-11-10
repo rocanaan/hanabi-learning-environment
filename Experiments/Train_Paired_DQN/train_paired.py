@@ -99,7 +99,7 @@ def launch_experiment():
   environment = run_paired_experiment.create_environment()
   obs_stacker = run_paired_experiment.create_obs_stacker(environment)
   my_agent = run_paired_experiment.create_agent(environment, obs_stacker,'Rainbow')
-  their_agent = PiersAgent({})
+  their_agent = IGGIAgent({})
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
   if FLAGS.checkpoint_save_dir == None:
