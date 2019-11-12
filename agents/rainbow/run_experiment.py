@@ -41,6 +41,10 @@ import tensorflow as tf
 LENIENT_SCORE = False
 
 
+TOTAL_STEP_COUNT = 0
+TOTAL_TIME = 0
+GLOBAL_RESULTS =[]
+
 class ObservationStacker(object):
   """Class for stacking agent observations."""
 
@@ -339,7 +343,7 @@ def run_one_episode(agent, environment, obs_stacker):
 
   agent.end_episode(reward_since_last_action)
 
-  tf.logging.info('EPISODE: %d %g', step_number, total_reward)
+  #tf.logging.info('EPISODE: %d %g', step_number, total_reward)
   return step_number, total_reward
 
 
@@ -440,6 +444,16 @@ def run_one_iteration(agent, environment, obs_stacker,
         'eval_episode_returns': -1
     })
 
+  global TOTAL_STEP_COUNT
+  global TOTAL_TIME
+  global GLOBAL_RESULTS
+  TOTAL_STEP_COUNT+=number_steps
+  TOTAL_TIME+=time_delta
+  iteration_results =[TOTAL_STEP_COUNT,TOTAL_TIME,average_return]
+  GLOBAL_RESULTS.append(iteration_results)
+  for r in GLOBAL_RESULTS:
+    print(r[0],r[1],r[2])
+    
   return statistics.data_lists
 
 

@@ -57,6 +57,9 @@ AGENTS = [IGGIAgent, InternalAgent, OuterAgent, LegalRandomAgent, VanDenBerghAge
 
 LENIENT_SCORE = False
 
+TOTAL_STEP_COUNT = 0
+TOTAL_TIME = 0
+GLOBAL_RESULTS = []
 
 class ObservationStacker(object):
   """Class for stacking agent observations."""
@@ -479,6 +482,16 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
         'eval_episode_lengths': -1,
         'eval_episode_returns': -1
     })
+    
+  global TOTAL_STEP_COUNT
+  global TOTAL_TIME
+  global GLOBAL_RESULTS
+  TOTAL_STEP_COUNT+=number_steps
+  TOTAL_TIME+=time_delta
+  iteration_results =[TOTAL_STEP_COUNT,TOTAL_TIME,average_return]
+  GLOBAL_RESULTS.append(iteration_results)
+  for r in GLOBAL_RESULTS:
+    print(r[0],r[1],r[2])
 
   return statistics.data_lists
 
