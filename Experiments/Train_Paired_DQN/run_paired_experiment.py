@@ -382,7 +382,7 @@ def run_one_episode(my_agent, their_agent, environment, obs_stacker):
 
   my_agent.end_episode(reward_since_last_action)
 
-  tf.logging.info('EPISODE: %d %g', step_number, total_reward)
+#   tf.logging.info('EPISODE: %d %g', step_number, total_reward)
   return step_number, total_reward
 
 
@@ -483,6 +483,8 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
         'eval_episode_returns': -1
     })
     
+  print(their_agent)  
+    
   global TOTAL_STEP_COUNT
   global TOTAL_TIME
   global GLOBAL_RESULTS
@@ -492,6 +494,7 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
   GLOBAL_RESULTS.append(iteration_results)
   for r in GLOBAL_RESULTS:
     print(r[0],r[1],r[2])
+
 
   return statistics.data_lists
 

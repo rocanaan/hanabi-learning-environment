@@ -12,7 +12,7 @@ export PYTHONPATH=${PYTHONPATH}:../../Experiments/Rulebased
 export PYTHONPATH=${PYTHONPATH}:/home/jupyter/Notebooks/Rodrigo/hanabilearningenvironment/
 export PYTHONPATH=${PYTHONPATH}:/home/jupyter/Notebooks/Rodrigo/hanabilearningenvironment/Experiments/Rulebased
 export PYTHONPATH=${PYTHONPATH}:/home/jupyter/Notebooks/Rodrigo/hanabilearningenvironment/agents/rainbow
-export CUDA_VISIBLE_DEVICES=""
+# export CUDA_VISIBLE_DEVICES=""
 
 
 
