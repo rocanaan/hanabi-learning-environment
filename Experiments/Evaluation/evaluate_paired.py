@@ -308,8 +308,9 @@ def main(unused_argv):
       temp_score_list.append(statistics.mean(return_collection))
       temp_std_list.append(statistics.stdev(return_collection))
     else:
-      temp_std_list.append(None)
-      temp_score_list.append(None)
+      return_collection = launch_experiment(agent_2,environment,obs_stacker,start_iteration, experiment_checkpointer,my_agent)
+      temp_score_list.append(statistics.mean(return_collection))
+      temp_std_list.append(statistics.stdev(return_collection))
   score_data['average'] = temp_score_list
   score_data['std'] = temp_std_list
   print(score_data)
