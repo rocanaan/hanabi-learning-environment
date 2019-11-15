@@ -15,8 +15,8 @@ export PYTHONPATH=${PYTHONPATH}:../../agents/rainbow
 python3 -um evaluate \
   --base_dir=:"Outer3950" \
   --gin_files="hanabi_rainbow_self.gin" \
-  --checkpoint_dir="PairedRainbow/Outer3950" \
-  --num_of_iterations=200 \
+  --checkpoint_dir="Paired/Outer3950" \
+  --num_of_iterations=20 \
   #--checkpoint_version=100
   --gin_bindings='RainbowAgent'\
   --checkpoint_save_dir=${NEW_LOG_PATH}

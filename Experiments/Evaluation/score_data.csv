@@ -1,2 +1,9 @@
 ,average,std
-IGGIAgent,9.1,6.0635523141692005
+IGGIAgent,0.0,0.0
+InternalAgent,0.0,0.0
+OuterAgent,0.0,0.0
+LegalRandomAgent,0.0,0.0
+VanDenBerghAgent,0.0,0.0
+FlawedAgent,0.0,0.0
+PiersAgent,0.0,0.0
+RainbowAgent,,
