@@ -15,11 +15,16 @@ export PYTHONPATH=${PYTHONPATH}:../../agents/rainbow
 python3 -um evaluate_paired \
   --base_dir=${LOG_PATH} \
   --gin_files="hanabi_rainbow.gin" \
-  --checkpoint_dir=${LOG_PATH}} \
-  --agent1="RainbowAgent" \
-  --agent2="RainbowAgent" \
-  --checkpoint_version=0 \
-  --evaluate_all=1 \
+  --checkpoint_dir="PairedRainbow/Outer3950" \
+  --num_of_iterations=10\
+  --train_only="IGGIAgent"
+ #--evaluate_all=1 \
+ #--agent1="RainbowAgent" \
+ #--agent2="RainbowAgent" \
+ #  --self_gin_files = "hanabi_rainbow_self.gin" \
+  
+  #--checkpoint_version=0 \
+
   #--checkpoint_save_dir=${NEW_LOG_PATH}\
   #--checkpoint_version=100
   #--gin_bindings="RainbowAgent"

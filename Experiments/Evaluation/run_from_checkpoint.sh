@@ -15,7 +15,7 @@ export PYTHONPATH=${PYTHONPATH}:../../agents/rainbow
 python3 -um evaluate_paired \
   --base_dir=${LOG_PATH} \
   --gin_files="hanabi_rainbow.gin" \
-  --checkpoint_dir=${LOG_PATH}} \
+  --checkpoint_dir="PairedRainbow/Outer3950" \
   --agent1="RainbowAgent" \
   --agent2="RainbowAgent" \
   --checkpoint_version=0

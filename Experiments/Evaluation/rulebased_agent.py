@@ -14,6 +14,7 @@
 """Simple Agent."""
 
 from rl_env import Agent
+from ruleset import Ruleset
 
 
 class RulebasedAgent():
@@ -21,13 +22,23 @@ class RulebasedAgent():
 
   def __init__(self,rules):
     self.rules = rules
+    self.totalCalls = 0
+    self.histogram = [0 for i in range(len(rules)+1)]
 
   def get_move(self,observation):
     if observation['current_player_offset'] == 0:
-      for rule in self.rules:
+      for index, rule in enumerate(self.rules):
         action = rule(observation)
         if action is not None:
+          # print(rule)
+          self.histogram[index]+=1
+          self.totalCalls +=1
           return action
-      return None
+      self.histogram[-1]+=1
+      self.totalCalls +=1
+      return Ruleset.legal_random(observation)
     return None
-
+ 
+  def print_histogram(self):
+    if self.totalCalls>0:
+      print([calls/self.totalCalls for calls in self.histogram ])
