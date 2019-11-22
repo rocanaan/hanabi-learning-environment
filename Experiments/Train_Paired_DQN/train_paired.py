@@ -101,12 +101,12 @@ def launch_experiment():
   my_agent = run_paired_experiment.create_agent(environment, obs_stacker,'Rainbow')
   their_agent = IGGIAgent({})
 
-  checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
+  checkpoint_dir = FLAGS.checkpoint_dir
   if FLAGS.checkpoint_save_dir == None:
     checkpoint_save_dir = checkpoint_dir
     experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
   else:
-    checkpoint_save_dir = '{}/checkpoints'.format(FLAGS.checkpoint_save_dir)
+    checkpoint_save_dir = ''.format(FLAGS.checkpoint_save_dir)
     experiment_logger = logger.Logger('{}/logs'.format(FLAGS.checkpoint_save_dir))
     print ("set save dir as: "+ checkpoint_save_dir)
 

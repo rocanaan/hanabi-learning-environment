@@ -38,6 +38,7 @@ import numpy as np
 import rainbow_agent
 import tensorflow as tf
 import random
+import sys
 
 
 from rulebased_agent import RulebasedAgent
@@ -57,6 +58,7 @@ AGENTS = [IGGIAgent, InternalAgent, OuterAgent, LegalRandomAgent, VanDenBerghAge
 
 LENIENT_SCORE = False
 
+ENSEMBLE = False
 TOTAL_STEP_COUNT = 0
 TOTAL_TIME = 0
 GLOBAL_RESULTS = []
@@ -247,7 +249,7 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,checkpoint
       tf.logging.info('Reloaded checkpoint and will start from iteration %d',
                       start_iteration)
     else:
-      print("load failed")
+      sys.exit("load failed")
     #redirect checkpointer from dir to save_dir
     experiment_checkpointer = checkpointer.Checkpointer(checkpoint_save_dir, checkpoint_file_prefix)
   return start_iteration, experiment_checkpointer
@@ -316,8 +318,9 @@ def run_one_episode(my_agent, their_agent, environment, obs_stacker):
     step_number: int, number of actions in this episode.
     total_reward: float, undiscounted return for this episode.
   """
-  agent_index = random.randint(0,len(AGENTS)-1)
-  their_agent = AGENTS[agent_index]({})
+  if ENSEMBLE:
+      agent_index = random.randint(0,len(AGENTS)-1)
+      their_agent = AGENTS[agent_index]({})
   obs_stacker.reset_stack()
   observations = environment.reset()
   current_player, legal_moves, observation_vector = (
@@ -483,7 +486,6 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
         'eval_episode_returns': -1
     })
     
-  print(their_agent)  
     
   global TOTAL_STEP_COUNT
   global TOTAL_TIME
@@ -494,6 +496,9 @@ def run_one_iteration(my_agent, their_agent, environment, obs_stacker,
   GLOBAL_RESULTS.append(iteration_results)
   for r in GLOBAL_RESULTS:
     print(r[0],r[1],r[2])
+  print(their_agent)  
+
+
 
 
   return statistics.data_lists
